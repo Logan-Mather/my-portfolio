@@ -1,0 +1,36 @@
+name: Quarto Publish
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # 🧠 Set up R
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: '4.3.1'
+
+      # 📦 Install only what you need
+      - name: Install R packages
+        run: |
+          Rscript -e 'install.packages("quarto")'
+
+      # 🧰 Install Quarto CLI
+      - uses: quarto-dev/quarto-actions/setup@v2
+
+      # 🛠️ Build the site
+      - name: Render Quarto site
+        run: quarto render
+
+      # 🚀 Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_site
